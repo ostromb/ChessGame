@@ -1,4 +1,4 @@
-# Projinda20
+# ChessGame
 This is a digital chess game. With the ability to play against another user on the same computer. The game is programmed using Java.
 
 ![](schack.png)
