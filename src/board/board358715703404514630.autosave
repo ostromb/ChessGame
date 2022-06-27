@@ -2,7 +2,7 @@ ChessBoard board = new ChessBoard();
 PImage[][] pieces; //Pjäsernas positioner
 
 PImage bPawn, wPawn, bRook, wRook, bBishop, wBishop, bKnight, wKnight, bKing, wKing, bQueen, wQueen;
-PImage curr, prev, dead, extra, extra2, checker;
+PImage curr, prev, dead, extra;
 boolean drag; //Om pjäsen dras
 boolean pressed;
 int posX, posY;
@@ -57,10 +57,9 @@ void draw() {
  for (int i = 0; i < 8; i++) {
    
   for (int j = 0; j < 8; j++) {
-    noTint();
     
-   if( (i+j)%2 == 0) fill(238,238,210);
-    else fill(118,150,86);
+   if( (i+j)%2 == 0) fill(238,238,210,100);
+    else fill(118,150,86,100);
     
     //Schackrutor
     rect(i*width/8,j*height/8,width/8,height/8);
@@ -74,24 +73,17 @@ void draw() {
      try {
        if (board.valid(curr,i,j,posX,posY)) {
          extra = pieces[j][i];
-         extra2 = pieces[posY][posX];
          pieces[j][i] = curr;
-         pieces[posY][posX] = null;
          if (board.check(!whitesTurn,pieces)){}
          //else if (board.check(whitesTurn,pieces)) {
           //fill(0,255,0,100);
           //rect(i*width/8,j*height/8, width/8,height/8);
          //}
          else {
-          fill(100,100,100,100);
-          circle(width/16 + i*width/8, height/16 + j*height/8, width/20);
+          fill(0,100,255,100);
+          rect(i*width/8,j*height/8, width/8,height/8);
          }
          pieces[j][i] = extra;
-         pieces[posY][posX] = extra2;
-       }
-       if (i == posX && j == posY) {
-        tint(255, 126);
-        image(curr, i*width/8, j*height/8);
        }
      }
      catch (Exception e) {} //För att fixa en bugg med ritning för bönder
@@ -224,16 +216,18 @@ void mouseReleased() {
            posY = mouseY/100;
            prev = curr;
            curr = null;
-           checker = curr;
            pressed = false;
            moved = true;
            check = false;
            
            if (whitesTurn) whitesTurn = false;
            else whitesTurn = true; 
-           check = board.check(!whitesTurn, pieces);  
            
-           if (check && board.mate()) mate = true;
+           for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+             if(board.mate(pieces[j][i],i,j,whitesTurn)) mate = true;
+            }
+           }       
          }
        } 
        else {
@@ -270,14 +264,18 @@ void mouseReleased() {
            posX = mouseX/100;
            posY = mouseY/100;
            prev = curr;
-           checker = curr;
            curr = null;
            pressed = false;
            moved = true;   
            
            if (whitesTurn) whitesTurn = false;
            else whitesTurn = true; 
-           if (check && board.mate()) mate = true;
+           
+           for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+             if(board.mate(pieces[j][i],i,j,whitesTurn)) mate = true;
+            }
+           }
          }
        }
      }
@@ -308,7 +306,6 @@ void keyPressed() {
    pieces = new PImage[8][8];
    board.startPos();
    whitesTurn = true;
-   curr = null;
    mate = false;
    check = false;
  }
@@ -318,8 +315,7 @@ void keyPressed() {
      pieces[posY][posX] = dead;
      if (whitesTurn) whitesTurn = false;
      else whitesTurn = true;
-     check = board.check(!whitesTurn, pieces);
-     mate = false;
+     check = false;
    }
  }
  else if (key == 'q') {
